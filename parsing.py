@@ -39,14 +39,12 @@ ids = list(train_data.keys())
 
 
 # Returns a tuple: (bass, deltas)
-# bass: an integer from 0 to 11 representing the pitch class of the bass note
-#       0 corresponds to C
-#       11 corresponds to B
+# bass: an integer from 0 to 11 representing it's relation to the previous bass note
 # deltas: A set containing integers representing the distance in semitones from
 #         the bass note to each other note in the chord, normalized to one octave
-def normalizeChord(interval):
+def normalizeChord(interval, prevBass):
     notes = [label[2][1] for label in sorted(interval)]
-    bass = notes.pop(0) % 12
+    bass = (notes.pop(0) - prevBass) % 12
     deltas = set([(note - bass) % 12 for note in notes])
     deltas.discard(0)
     return (bass, deltas)
@@ -65,29 +63,35 @@ def getChords(id):
     prevTime = labels.begin()
     while moment < labels.end():
         if len(labels[moment]) > 1:
-            chord = normalizeChord(labels[moment])
             prevChord = chords[-1] if len(chords) > 0 else (0, set([]))
+            chord = normalizeChord(labels[moment], prevChord[0])
             if len(chord[1]) > 0 and (chord[0] != prevChord[0] or not chord[1].issubset(prevChord[1])):
-                if (moment - prevTime) / fs > 2:
-                    phrases.append(chords)
-                    chords = []
-                    prevTime = moment
-                chords.append(normalizeChord(labels[moment]))
+                if prevChord[0] == chord[0] and prevChord[1].issubset(chord[1]):
+                    prevChord[1].update(chord[1])
+                else:
+                    if (moment - prevTime) / fs > 2:
+                        phrases.append(chords)
+                        chords = []
+                        prevTime = moment
+                    chords.append(chord)
         moment += spc
-    return chords
+    phrases.append(chords)
+    return phrases
 
 # Returns a list of all musical phrases in MusicNet
 def getAllPhrases():
     phrases = []
     for id in train_data:
-        print('getting chords for' + id)
+        print('getting chords for', id)
         phrases += getChords(id)
     return phrases
 
 
 # Parses and pickles the training data
 def main():
-    pickle.dump(getAllPhrases(), open('parsed_data.p', 'wb'))
+    data = getAllPhrases()
+    pickle.dump(data, open('parsed_data.p', 'wb'))
+
 
 if __name__ == '__main__':
     main()
