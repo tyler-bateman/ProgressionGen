@@ -38,51 +38,76 @@ train_data = np.load(open('musicnet.npz', 'rb'), allow_pickle = True, encoding =
 ids = list(train_data.keys())
 
 
-#Converts the chord into a format that is hashable
-#Param chord: (bass, deltas) where bass is an int and deltas is a set of ints
-def hashable(chord):
-    return(chord[0], tuple(chord[1]))
-
-
 
 # Returns a tuple: (bass, deltas)
-# bass: an integer from 0 to 11 representing it's relation to the previous bass note
+# bass: an integer from 0 to 11 representing the pitch class of the lowest note
 # deltas: A set containing integers representing the distance in semitones from
 #         the bass note to each other note in the chord, normalized to one octave
-def normalizeChord(interval, prevBass):
+def normalizeChord(interval):
     notes = [label[2][1] for label in sorted(interval)]
-    bass = (notes.pop(0) - prevBass) % 12
+    bass = notes.pop(0) % 12
     deltas = set([(note - bass) % 12 for note in notes])
     deltas.discard(0)
     return (bass, deltas)
 
 
-# Returns a list of lists of chords in the order that they appear in the piece
+# Returns a lists of chords qualities in the order that they appear in the piece
+# and a list of transition intervals for the bass notes
 # Sequences of chords are diveded into phrases, which for these purposes wll
 # be delimited by 2 seconds since the last chord.
 # Each chord is of the format specified by normalizeChord above
-# A chord must meet two criteria in order to
 def getChords(id):
-    phrases = []
-    chords = []
     labels = train_data[id][1]
+
+    qualities = []
+    transitions = []
+    durations = []
+
+
     moment = labels.begin()
-    prevTime = labels.begin()
+    prevChord = None
+
+    #Parse individual chords
     while moment < labels.end():
-        if len(labels[moment]) > 1:
-            prevChord = chords[-1] if len(chords) > 0 else (0, set([]))
-            chord = normalizeChord(labels[moment], prevChord[0])
-            if len(chord[1]) > 0 and (chord[0] != prevChord[0] or not chord[1].issubset(prevChord[1])):
-                if prevChord[0] == chord[0] and prevChord[1].issubset(chord[1]):
-                    prevChord[1].update(chord[1])
+        c = None
+        if len(labels[moment]) > 0:
+            c = normalizeChord(labels[moment])
+            if c != prevChord:
+                q = c[1]
+                t = ((c[0] - (transitions[-1] if len(transitions) > 0 else 0)) + 12) % 12
+                if not prevChord is None and t == 0 and q.issubset(prevChord[1]):
+                    durations[-1][1] = moment
+                elif not prevChord is None and t == 0 and q.issuperset(prevChord[1]):
+                    qualities[-1] = q
+                    durations[-1][1] = moment
                 else:
-                    if (moment - prevTime) / fs > 2:
-                        phrases.append(chords)
-                        chords = []
-                        prevTime = moment
-                    chords.append(chord)
+                    qualities.append(q)
+                    transitions.append(t)
+                    durations.append([moment, moment])
+            else:
+                durations[-1][1] = moment
+
         moment += spc
-    phrases.append(chords)
+        prevChord = c
+
+    #remove non-chords
+    idx = 0
+    while idx < len(qualities):
+        if len(qualities[idx]) == 0:
+            qualities.pop(idx)
+            durations.pop(idx)
+            transitions.pop(idx)
+            idx -= 1
+        idx += 1
+
+    #Split into phrases
+    phrases = []
+    startIndex = 0
+    for i in range(len(qualities) - 1):
+        if durations[i + 1][0] - durations[i][1] > fs * 2:
+            phrases.append((transitions[startIndex + 1 : i + 1], qualities[startIndex : i + 1]))
+            startIndex = i + 1
+
     return phrases
 
 # Returns a list of all musical phrases in MusicNet
@@ -97,6 +122,7 @@ def getAllPhrases():
 # Parses and pickles the training data
 def main():
     data = getAllPhrases()
+    print(data[0])
     pickle.dump(data, open('parsed_data.p', 'wb'))
 
 
