@@ -38,6 +38,13 @@ train_data = np.load(open('musicnet.npz', 'rb'), allow_pickle = True, encoding =
 ids = list(train_data.keys())
 
 
+#Converts the chord into a format that is hashable
+#Param chord: (bass, deltas) where bass is an int and deltas is a set of ints
+def hashable(chord):
+    return(chord[0], tuple(chord[1]))
+
+
+
 # Returns a tuple: (bass, deltas)
 # bass: an integer from 0 to 11 representing it's relation to the previous bass note
 # deltas: A set containing integers representing the distance in semitones from
