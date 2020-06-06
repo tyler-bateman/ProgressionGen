@@ -1,11 +1,10 @@
 
 
 from math import log
-from vocab import getVocab
-import random
+from vocab import getVocab, START, END
+import random, pickle
 
-START = (0, set())
-END = (1, set())
+
 
 def wrap(phrase, n):
     return [START for i in range(n - 1)] + phrase + [END]
@@ -17,11 +16,11 @@ def train(data, n, lmda):
     v = getVocab(data)
 
     for phrase in data:
-        p = wrap(phrase)
+        p = wrap(phrase, n)
         for i in range(len(phrase) - n + 1):
-            ngram = [p[j] for j in range(i, i + n)]
-            context = ngram[:-1]
-            token = ngram[-1]
+            ngram = [(p[j][0], tuple(sorted(p[j][1]))) for j in range(i, i + n)]
+            context = tuple(ngram[:-1])
+            token = tuple(ngram[-1])
             if context in counts:
                 if token in counts[context]:
                     counts[context][token] += 1
@@ -40,6 +39,9 @@ def train(data, n, lmda):
 
         total_count = log(total_count + (len(v) * lmda))
         for token in counts[context]:
+            print('context:', context)
+            print('token:', token)
+            print(token in v)
             prob[context][token] += log(counts[context][token]) - total_count
 
     return prob
@@ -52,7 +54,15 @@ def generateChords(model, v):
 
     while nextChord != END:
         context = tuple(prog[1 - n:])
-        nextChord = random.choices(vList, weights = model[context][t] for t in vList)
+        nextChord = random.choices(vList, weights = [model[context][t] for t in vList])
         prog.append(nextChord)
 
     return prog
+
+def main():
+    data = pickle.load(open('parsed_data.p', 'rb'))
+    model = train(data, 3, 0.001)
+    prog = generateChords(model, getVocab(data))
+    print(prog)
+
+main()
