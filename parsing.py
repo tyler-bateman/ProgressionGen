@@ -90,14 +90,16 @@ def getChords(id):
         moment += spc
         prevChord = c
 
-    #remove non-chords
+    #remove non-chords and convert qualities to tuples
     idx = 0
     while idx < len(qualities):
+        qualities[idx] = tuple(sorted(qualities[idx]))
         if len(qualities[idx]) == 0:
             qualities.pop(idx)
             durations.pop(idx)
             transitions.pop(idx)
             idx -= 1
+
         idx += 1
 
     #Split into phrases
