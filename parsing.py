@@ -49,6 +49,7 @@ def normalizeChord(interval):
     bass = notes.pop(0) % 12
     deltas = set([(note - bass) % 12 for note in notes])
     deltas.discard(0)
+    deltas = tuple(sorted(deltas))
     return (bass, deltas)
 
 
@@ -81,7 +82,7 @@ def getChords(id):
             prevBass = c[0]
         else:
             if len(transitions) > 0:
-                phrases.append((transitions, tuple(qualities)))
+                phrases.append((transitions, qualities))
             qualities = []
             transitions = []
             durations= []
