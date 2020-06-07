@@ -6,7 +6,7 @@ import dill as pickle
 
 
 def trainModel(n, lines):
-    ngrams, phrases = pep(n, data)
+    ngrams, phrases = pep(n, lines)
     model = MLE(n)
     model.fit(ngrams, phrases)
     return model

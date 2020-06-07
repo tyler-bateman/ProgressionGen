@@ -8,9 +8,12 @@ def str_p(p):
     return 11 if p == 'E' else 10 if p == 'T' else int(p)
 
 def str_to_pitches(chord, prevBass):
-    bass = (str_p(chord[0]) + prevBass) % 12 + T
-    cts = [bass + str_p(n) for n in chord[1:]]
-    return [bass] + cts
+    if chord == '<s>' or chord == '</s>':
+        return []
+    else:
+        bass = (str_p(chord[0]) + prevBass) % 12 + T
+        cts = [bass + str_p(n) for n in chord[1:]]
+        return [bass] + cts
 
 
 def write_file(filename, chords):
@@ -22,7 +25,7 @@ def write_file(filename, chords):
     prevChord = []
     for i in range(len(chords)):
         c = str_to_pitches(chords[i], prevBass)
-        nextChord = [] if i + 1 >= len(chords) else str_to_pitches(chords[i + 1], c[0])
+        nextChord = [] if i + 1 >= len(chords) else str_to_pitches(chords[i + 1], c[0] if len(c) > 0 else 0)
         for n in c:
             if n not in prevChord:
                 midi.update_time(time, relative = False)
@@ -32,7 +35,7 @@ def write_file(filename, chords):
             if n not in nextChord:
                 midi.update_time(time, relative = False)
                 midi.note_off(0, n, V)
-        prevBass = c[0]
+        prevBass = c[0] if len(c) > 0 else 0
         prevChord = c
     midi.update_time(0)
     midi.end_of_track()

@@ -83,7 +83,6 @@ def getChords(id):
                 phrases.append((transitions, qualities))
             qualities = []
             transitions = []
-            durations= []
 
         moment += spc
 
