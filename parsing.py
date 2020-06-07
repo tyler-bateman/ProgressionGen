@@ -8,7 +8,7 @@
 #        - Thus, all values in the list will be a number from 1-11
 #
 #
-# Chords will be sampled from the data at 4 every 250 ms, which is sixtennth notes
+# Chords will be sampled from the data at 4 every 250 ms, which is sixteenth notes
 # at the interonset interval that Westergaard calls 'too fast to be useful'. I
 # figure that it is unlikely that any significant chordal information would be
 # skipped at that rate.
@@ -32,11 +32,7 @@ fs = 44100
 spc = fs // 16
 
 #Retrieve training data
-train_data = np.load(open('musicnet.npz', 'rb'), allow_pickle = True, encoding = 'latin1')
-
-#Retain a list of all MusicNet IDs
-ids = list(train_data.keys())
-
+train_data = np.load(open('data/musicnet.npz', 'rb'), allow_pickle = True, encoding = 'latin1')
 
 
 # Returns a tuple: (bass, deltas)
@@ -70,16 +66,18 @@ def getChords(id):
 
     moment = labels.begin()
     prevBass = None
+    prevQuality = None
     #Parse individual chords
     while moment < labels.end():
 
         if len(labels[moment]) > 0:
             c = normalizeChord(labels[moment])
-
-            if len(qualities) > 0:
-                transitions.append((c[0] - prevBass) % 12)
-            qualities.append(c[1])
-            prevBass = c[0]
+            if prevBass != c[0] or prevQuality != c[1]:
+                if len(qualities) > 0:
+                    transitions.append((c[0] - prevBass) % 12)
+                qualities.append(c[1])
+                prevBass = c[0]
+                prevQuality = c[1]
         else:
             if len(transitions) > 0:
                 phrases.append((transitions, qualities))
@@ -104,8 +102,7 @@ def getAllPhrases():
 # Parses and pickles the training data
 def main():
     data = getAllPhrases()
-    print(data[0])
-    pickle.dump(data, open('parsed_data.p', 'wb'))
+    pickle.dump(data, open('data/parsed_data.p', 'wb'))
 
 
 if __name__ == '__main__':
