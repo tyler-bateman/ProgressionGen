@@ -18,6 +18,6 @@ def main():
     input = open('data/train_data.txt', 'r')
     train_data = [line.strip().split() for line in input.readlines()]
     models = [trainModel(n, train_data) for n in range(1, 5)]
-    pickle.dump(models, open('ngram_models.p', 'wb'))
+    pickle.dump(models, open('models/ngram_models.p', 'wb'))
 
 main()

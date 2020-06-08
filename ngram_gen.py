@@ -5,7 +5,7 @@ def generate_chord_sequence(num, model):
     return model.generate(num)
 
 def main():
-    models = pickle.load(open('ngram_models.p', 'rb'))
+    models = pickle.load(open('models/ngram_models.p', 'rb'))
     for i in range(1, len(models)):
         model = models[i]
         output = open('output/{}-gram_chords.txt'.format(i+1), 'w')
