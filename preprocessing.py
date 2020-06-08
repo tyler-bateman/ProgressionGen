@@ -19,7 +19,7 @@ def main():
     train_output = open('data/train_data.txt', 'w')
     test_output = open('data/test_data.txt', 'w')
     all_data = parse(data)
-    train_size = math.floor(len(data) * 0.80)
+    train_size = math.floor(len(data) * 0.99)
     train_output.writelines(all_data[:train_size])
     test_output.writelines(all_data[train_size:])
 
