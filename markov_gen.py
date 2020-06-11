@@ -10,7 +10,7 @@ def main():
             for i in range(10):
                 seq = model.make_sentence().strip()
                 print(seq)
-                output.write(seq)
+                output.write(seq + '\n')
                 write_file('midi_files/{}-order_markov_{}.mid'.format(order, i), seq.split(' '))
 
 if __name__ == '__main__':
