@@ -1,3 +1,7 @@
+'''
+Uses trained markov chains to generate 10 lines of chords each.
+'''
+
 import markovify
 from chordstomidi import write_file
 

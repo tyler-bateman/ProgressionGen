@@ -1,3 +1,9 @@
+"""
+This is the script for training markov chains.
+Markov chains are generated with state sizes of 1, 2, and 3
+"""
+
+
 import markovify
 
 

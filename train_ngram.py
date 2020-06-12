@@ -1,3 +1,9 @@
+'''
+This is the script for training NLTK ngram models.
+Creates unigram, bigram, trigram, and quadrigram models.
+'''
+
+
 from nltk.util import ngrams
 from nltk.util import everygrams
 from nltk.lm.preprocessing import padded_everygram_pipeline as pep

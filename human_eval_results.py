@@ -1,3 +1,7 @@
+"""
+Calculates the average scores for each model given the human evaluations.
+"""
+
 import os
 
 model_types = ['1-gram', '2-gram', '3-gram', '4-gram', '1-order_markov', '2-order_markov', '3-order_markov', 'nn_0.5', 'nn_0.75', 'nn_1.0']

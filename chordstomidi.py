@@ -1,3 +1,7 @@
+"""
+Provides functionality to convert sequences of chords in string format into midi files
+"""
+
 from mxm.midifile import MidiOutFile
 
 T = 48
@@ -5,9 +9,15 @@ V = 64
 
 
 def str_p(p):
+    """
+    Converts the character format of a note into its respective pitch class
+    """
     return 11 if p == 'E' else 10 if p == 'T' else int(p)
 
 def str_to_pitches(chord, prevBass):
+    """
+    Converts the string format of a chord into its pitch classes.
+    """
     if chord == '<s>' or chord == '</s>':
         return []
     else:
@@ -17,6 +27,9 @@ def str_to_pitches(chord, prevBass):
 
 
 def write_file(filename, chords):
+    """
+    Writes a midi file of the given file name from the list of chords given.
+    """
     midi = MidiOutFile(open(filename, 'wb'))
     midi.header(format = 0, nTracks = 12, division = 16)
     midi.start_of_track()

@@ -1,8 +1,10 @@
+'''
+Uses trained ngram models to generate 10 lines of chords in strings of at most 50 chords
+'''
+
+
 import dill as pickle
 import chordstomidi as midi
-
-def generate_chord_sequence(num, model):
-    return model.generate(num)
 
 def main():
     models = pickle.load(open('models/ngram_models.p', 'rb'))

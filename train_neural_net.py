@@ -1,3 +1,8 @@
+'''
+This is the script for training the neural net. The neural net is trained on
+16 epochs
+'''
+
 from textgenrnn import textgenrnn
 
 

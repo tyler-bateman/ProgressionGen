@@ -1,26 +1,25 @@
-# The following information about chords will be stored. Any chord that has the
-# same information will be assumed to be the same chord.
-# 1. The bass note of the chord, i.e. the lowest note.
-#      An integer from 0 (corresponding to 'C') to 11 (corresponding to 'B')
-# 2. A list of intervals in half-steps between the bass note and the other notes in the chord
-#        - Any repeated notes will be ignored
-#        - All notes will be octave-shifted to the single actave above the bass note
-#        - Thus, all values in the list will be a number from 1-11
-#
-#
-# Chords will be sampled from the data at 4 every 250 ms, which is sixteenth notes
-# at the interonset interval that Westergaard calls 'too fast to be useful'. I
-# figure that it is unlikely that any significant chordal information would be
-# skipped at that rate.
-# Of course, most chords will last longer than 250 ms. Because this task relates
-# to the transitions between chords, any time a chord is identical to the
-# preceding chord (according the the rules above), it will be ignored.
-#
-# Because this task relates to chords, single melody lines will also be ignored.
-# For my purposes, any time there is greater than 2 seconds betwen chords, be it
-# because of a rest or a period of unaccompanied melody (including multiple
-# instruments playing in unison), the next chord of two or more notes will be
-#   considered the start of a new phrase.
+"""
+The following information about chords will be parsed from the dataset. Any
+chord that has the same information will be assumed to be the same chord.
+1. The bass note of the chord, i.e. the lowest note.
+     An integer from 0 (corresponding to 'C') to 11 (corresponding to 'B')
+2. A list of intervals in half-steps between the bass note and the other notes in the chord
+       - Any repeated notes will be ignored
+       - All notes will be octave-shifted to the single actave above the bass note
+       - Thus, all values in the list will be a number from 1-11
+
+
+Chords will be sampled from the data at 4 every 250 ms, which is sixteenth notes
+at the interonset interval that Westergaard calls 'too fast to be useful'. I
+figure that it is unlikely that any significant chordal information would be
+skipped at that rate.
+Of course, most chords will last longer than 250 ms. Because this task relates
+to the transitions between chords, any time a chord is identical to the
+preceding chord (according the the rules above), it will be ignored.
+
+Any time there is a moment of silence, this will be treated as a break between
+phrases.
+"""
 
 import numpy as np, pickle
 from intervaltree import Interval, IntervalTree
@@ -49,12 +48,15 @@ def normalizeChord(interval):
     return (bass, deltas)
 
 
-# Returns a lists of chords qualities in the order that they appear in the piece
-# and a list of transition intervals for the bass notes
-# Sequences of chords are diveded into phrases, which for these purposes wll
-# be delimited by 2 seconds since the last chord.
-# Each chord is of the format specified by normalizeChord above
+
 def getChords(id):
+    """
+    Returns a lists of chords qualities in the order that they appear in the piece
+    and a list of transition intervals for the bass notes
+    Sequences of chords are diveded into phrases, which for these purposes wll
+    be delimited by 2 seconds since the last chord.
+    Each chord is of the format specified by normalizeChord above
+    """
     labels = train_data[id][1]
 
     phrases = []
@@ -88,9 +90,12 @@ def getChords(id):
 
     return phrases
 
-# Returns a list of all musical phrases in MusicNet
+
 
 def getAllPhrases():
+    """
+    Returns a list of all musical phrases in MusicNet
+    """
     phrases = []
     for id in train_data:
         print('getting chords for', id)
@@ -98,8 +103,11 @@ def getAllPhrases():
     return phrases
 
 
-# Parses and pickles the training data
+
 def main():
+    """
+    Parses and pickles the training data
+    """
     data = getAllPhrases()
     pickle.dump(data, open('data/parsed_data.p', 'wb'))
 

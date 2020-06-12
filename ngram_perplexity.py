@@ -1,3 +1,7 @@
+'''
+Calculates the perplexity of the test data with the n-gram models.
+'''
+
 
 from nltk.util import ngrams
 from nltk.lm.preprocessing import pad_both_ends

@@ -1,3 +1,8 @@
+'''
+Uses trained neural net to generate 10 lines of chords in strings of at most 50 chords
+Chords are generated at temperatures of 0.5, 0.75, and 1.0
+'''
+
 from textgenrnn import textgenrnn
 from chordstomidi import write_file
 
